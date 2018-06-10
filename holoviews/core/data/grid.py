@@ -20,7 +20,7 @@ except ImportError:
 
 from .dictionary import DictInterface
 from .interface import Interface, DataError
-from ..dimension import Dimension
+from ..dimension import Dimension, dimension_name
 from ..element import Element
 from ..dimension import OrderedDict as cyODict
 from ..ndmapping import NdMapping, item_check
@@ -62,8 +62,7 @@ class GridInterface(DictInterface):
                              'one value dimension.')
 
         ndims = len(kdims)
-        dimensions = [d.name if isinstance(d, Dimension) else
-                      d for d in kdims + vdims]
+        dimensions = [dimension_name(d) for d in kdims+vdims]
         if isinstance(data, tuple):
             data = {d: v for d, v in zip(dimensions, data)}
         elif isinstance(data, list) and data == []:
@@ -86,14 +85,14 @@ class GridInterface(DictInterface):
                             'dictionary or tuple')
 
         for dim in kdims+vdims:
-            name = dim.name if isinstance(dim, Dimension) else dim
+            name = dimension_name(dim)
             if name not in data:
                 raise ValueError("Values for dimension %s not found" % dim)
             if not isinstance(data[name], array_types):
                 data[name] = np.array(data[name])
 
-        kdim_names = [d.name if isinstance(d, Dimension) else d for d in kdims]
-        vdim_names = [d.name if isinstance(d, Dimension) else d for d in vdims]
+        kdim_names = [dimension_name(d) for d in kdims]
+        vdim_names = [dimension_name(d) for d in vdims]
         expected = tuple([len(data[kd]) for kd in kdim_names])
         irregular_shape = data[kdim_names[0]].shape if kdim_names else ()
         valid_shape = irregular_shape if len(irregular_shape) > 1 else expected[::-1]
@@ -118,7 +117,7 @@ class GridInterface(DictInterface):
 
     @classmethod
     def irregular(cls, dataset, dim):
-        return dataset.data[dim.name if isinstance(dim, Dimension) else dim].ndim > 1
+        return dataset.data[dimension_name(dim)].ndim > 1
 
 
     @classmethod
@@ -536,7 +535,7 @@ class GridInterface(DictInterface):
 
     @classmethod
     def aggregate(cls, dataset, kdims, function, **kwargs):
-        kdims = [kd.name if isinstance(kd, Dimension) else kd for kd in kdims]
+        kdims = [dimension_name(kd) for kd in kdims]
         data = {kdim: dataset.data[kdim] for kdim in kdims}
         axes = tuple(dataset.ndims-dataset.get_dimension_index(kdim)-1
                      for kdim in dataset.kdims if kdim not in kdims)
@@ -583,7 +582,7 @@ class GridInterface(DictInterface):
     def add_dimension(cls, dataset, dimension, dim_pos, values, vdim):
         if not vdim:
             raise Exception("Cannot add key dimension to a dense representation.")
-        dim = dimension.name if isinstance(dimension, Dimension) else dimension
+        dim = dimension_name(dimension)
         return dict(dataset.data, **{dim: values})
 
 
