@@ -359,7 +359,7 @@ class aggregate(AggregationOperation):
             else:
                 grouped = element.groupby([agg_fn.column], container_type=NdOverlay,
                                           group_type=NdOverlay)
-            return grouped.clone({k: agg_fn1(v) for k, v in grouped.items()})
+            return grouped.clone([(k, agg_fn1(v)) for k, v in grouped.items()])
 
         # Create aggregate instance for sum, count operations, breaking mean
         # into two aggregates
