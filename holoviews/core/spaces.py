@@ -1231,7 +1231,7 @@ class DynamicMap(HoloMap):
             return [None], self
 
         from ..util import Dynamic
-        keys = list(self.last.keys())
+        keys = list(self.last.data.keys())
         dmaps = []
         for key in keys:
             def cb(obj, overlay_key=key, **kwargs):
